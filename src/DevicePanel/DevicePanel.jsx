@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import sdk from "qcloud-iotexplorer-h5-panel-sdk";
-import { Card } from "../components/Card";
+import { Card, ActionCard } from "../components/Card";
 import {
   HeadBoolPanel,
   HeadEnumPanel,
@@ -9,12 +9,16 @@ import {
 import {
   NumberPanelControl,
   EnumPanelControl,
+  BoolPanelControl,
+  BoolBtnPanel,
 } from "../components/DeviceDataModal";
 import { useDeviceData } from "../hooks/useDeviceData";
 import { StandardBleConnector } from "../StandardBleDemo/components/StandardBleConnector";
 import { PropertyList } from "./PropertyList";
 import { DeviceDetailBtn } from "./DeviceDetailBtn";
 import { ManualLayoutPropertyList } from "./ManualLayoutPropertyList";
+import { PropertyBoolList } from "./PropertyBoolList";
+import { PropertyActionList } from "./PropertyActionList";
 import "./DevicePanel.less";
 
 const windowHeight =
@@ -61,6 +65,42 @@ function PropertyCard({
   );
 }
 
+function PropertyActionCard({
+  templateConfig,
+  value,
+  onClick,
+  disabled: outerDisabled,
+  direction,
+}) {
+  const disabled =
+    Boolean(outerDisabled) || templateConfig.mode.indexOf("w") === -1;
+  const { name, define: { type, mapping, start, unit } = {} } = templateConfig;
+
+  switch (type) {
+    case "int":
+    case "float":
+    case "bool":
+    case "enum":{
+      if (value === undefined || !(value in mapping)) {
+        value = Object.keys(mapping)[0];
+      }
+      value = mapping[value];
+      break;
+    }
+  }
+
+  return (
+    <ActionCard
+      icon="create"
+      title={name}
+      desc={value}
+      onClick={onClick}
+      disabled={disabled}
+      direction={direction}
+    />
+  );
+}
+
 export function DevicePanel() {
   const [state, { onDeviceDataChange, onDeviceStatusChange }] = useDeviceData(
     sdk
@@ -72,10 +112,26 @@ export function DevicePanel() {
     templateId: "",
   });
 
+  const [boolPanelInfo, setBoolPanelInfo] = useState({
+    visible: false,
+    templateId: "",
+  });
+
   const [enumPanelInfo, setEnumPanelInfo] = useState({
     visible: false,
     templateId: "",
   });
+
+  const upHeadCard = ({ templateConfig, cardDirection }) => (
+    <PropertyCard
+      key={templateConfig.id}
+      templateConfig={templateConfig}
+      value={state.deviceData[templateConfig.id]}
+      disabled={disabled}
+      direction={cardDirection}
+      onClick={() => onControlPanelItem(templateConfig)}
+    />
+  );
 
   useEffect(() => {
     sdk.setShareConfig({
@@ -131,8 +187,10 @@ export function DevicePanel() {
     doCheckFirmwareUpgrade();
   }, []);
 
-  const onControlDeviceData = (id, value) =>
+  const onControlDeviceData = (id, value) => {
     sdk.controlDeviceData({ [id]: value });
+    console.log("controlDeviceData", id, value);
+  }
 
   const onControlPanelItem = (item) => {
     console.log("onControlPanelItem", item);
@@ -151,6 +209,10 @@ export function DevicePanel() {
         });
         break;
       case "bool":
+        setBoolPanelInfo({
+          visible: true,
+          templateId: id,
+        });
       case "enum": {
         setEnumPanelInfo({
           visible: true,
@@ -170,49 +232,7 @@ export function DevicePanel() {
   }
 
   const renderHeadPanel = () => {
-    if (!headPanelTemplateId) return null;
-
-    const headTemplateConfig = state.templateMap[headPanelTemplateId];
-    if (!headTemplateConfig) return null;
-
-    const {
-      id,
-      define: { type },
-    } = headTemplateConfig;
-    const value = state.deviceData[id];
-
-    switch (type) {
-      case "bool":
-        return (
-          <HeadBoolPanel
-            templateConfig={headTemplateConfig}
-            onChange={(value) => onControlDeviceData(id, value)}
-            value={value}
-            disabled={disabled}
-          />
-        );
-      case "enum":
-        return (
-          <HeadEnumPanel
-            templateConfig={headTemplateConfig}
-            onChange={(value) => onControlDeviceData(id, value)}
-            value={value}
-            disabled={disabled}
-          />
-        );
-      case "int":
-      case "float":
-        return (
-          <HeadNumberPanel
-            templateConfig={headTemplateConfig}
-            onChange={(value) => onControlDeviceData(id, value)}
-            value={value}
-            disabled={disabled}
-          />
-        );
-      default:
-        return null;
-    }
+    return null;
   };
 
   const renderPropertyCard = ({ templateConfig, cardDirection }) => (
@@ -226,8 +246,43 @@ export function DevicePanel() {
     />
   );
 
+  const renderPropertyBoolCard = ({ templateConfig, cardDirection }) => {
+    const itemTemplateConfig = state.templateMap[templateConfig.id];
+    if (!itemTemplateConfig) return null;
+
+    const {
+      id,
+      define: { type },
+    } = itemTemplateConfig;
+    const value = state.deviceData[id];
+
+    switch (type) {
+      case "bool":
+        return (
+          <BoolBtnPanel
+            templateConfig={itemTemplateConfig}
+            onChange={(value) => onControlDeviceData(id, value)}
+            value={value}
+            disabled={disabled}
+          />
+        );
+      case "enum":
+        return (
+          <PropertyActionCard
+            key={templateConfig.id}
+            templateConfig={templateConfig}
+            value={state.deviceData[templateConfig.id]}
+            disabled={disabled}
+            direction={cardDirection}
+            onClick={() => onControlPanelItem(templateConfig)}
+          />
+        )
+    }
+  };
+  
+
   // 设置为 true 切换为手动排列属性示例
-  const showManualLayoutPropertyList = false;
+  const showManualLayoutPropertyList = true;
 
   return (
     <div>
@@ -239,6 +294,19 @@ export function DevicePanel() {
         style={{ minHeight: `${windowHeight}px` }}
       >
         <DeviceDetailBtn />
+
+        <div style={{display: 'flex', width: '100%', justifyContent: 'center'}}>
+          <div style={{display: 'flex', width: '20%', justifyContent: 'center'}} />
+          <div style={{display: 'flex', width: '60%', justifyContent: 'center'}}>
+            <img className="photo" lazy-load="true" src='https://s3.bmp.ovh/imgs/2022/03/f424ba369eae753d.png' />
+          </div>
+          <div style={{display: 'flex', width: '20%', justifyContent: 'center'}} />
+        </div>
+
+        <div style={{display: 'flex', justifyContent: 'left'}}>
+          <div style={{display: 'flex', width: '10%', justifyContent: 'center'}} />
+          <p className="card">在线</p>
+        </div>
 
         {renderHeadPanel()}
 
@@ -253,9 +321,9 @@ export function DevicePanel() {
               />
             ) : (
               // 手动排列
-              <ManualLayoutPropertyList
+              <PropertyBoolList
                 templateList={state.templateList}
-                renderProperty={renderPropertyCard}
+                renderProperty={renderPropertyBoolCard}
               />
             )}
           </div>

@@ -1,0 +1,67 @@
+.card {
+  background: #fff;
+  padding: 40px;
+  padding-top: 3px;
+  margin-bottom: 2px;
+  width: 80%;
+  border-radius: 8px;
+  color: #15161A;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  &__title {
+    font-size: 18px;
+    line-height: 18px;
+    color: #15161A;
+
+    white-space: pre-wrap;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__desc {
+    font-size: 14px;
+    line-height: 14px;
+    color: #A1A7B2;
+  }
+}
+
+.card.card_disabled {
+  .card__title {
+    color: #A1A7B2;
+  }
+}
+
+.card_row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 26px;
+
+  .card__icon {
+    margin-right: 8px;
+  }
+
+  .card__title {
+    flex-grow: 1;
+  }
+
+  .card__desc {
+    margin-left: 8px;
+  }
+}
+
+.card_column {
+  display: flex;
+  flex-direction: column;
+  min-height: 55px;
+
+  .card__icon {
+    margin-bottom: 12px;
+  }
+
+  .card__desc {
+    margin-top: 2px;
+  }
+}
