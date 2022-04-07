@@ -23,6 +23,7 @@ import "./DevicePanel.less";
 
 const windowHeight =
   window.innerHeight || document.documentElement.clientHeight;
+let sofaModeName = "";
 
 function PropertyCard({
   templateConfig,
@@ -122,17 +123,6 @@ export function DevicePanel() {
     templateId: "",
   });
 
-  const upHeadCard = ({ templateConfig, cardDirection }) => (
-    <PropertyCard
-      key={templateConfig.id}
-      templateConfig={templateConfig}
-      value={state.deviceData[templateConfig.id]}
-      disabled={disabled}
-      direction={cardDirection}
-      onClick={() => onControlPanelItem(templateConfig)}
-    />
-  );
-
   useEffect(() => {
     sdk.setShareConfig({
       title: sdk.displayName,
@@ -189,6 +179,14 @@ export function DevicePanel() {
 
   const onControlDeviceData = (id, value) => {
     sdk.controlDeviceData({ [id]: value });
+    state.templateList.forEach(element => {
+      if (element.id == id) {
+        sofaModeName = element.name;
+        console.log('element=',element);
+      } else {
+        sdk.controlDeviceData({ [element.id]: 0 });
+      }
+    });
     console.log("controlDeviceData", id, value);
   }
 
@@ -280,6 +278,30 @@ export function DevicePanel() {
     }
   };
   
+  const renderPropertyActionCard = ({ templateConfig, cardDirection }) => {
+    const itemTemplateConfig = state.templateMap[templateConfig.id];
+    if (!itemTemplateConfig) return null;
+
+    const {
+      id,
+      define: { type },
+    } = itemTemplateConfig;
+    const value = state.deviceData[id];
+
+    switch (type) {
+      case "enum":
+        return (
+          <PropertyActionCard
+            key={templateConfig.id}
+            templateConfig={templateConfig}
+            value={state.deviceData[templateConfig.id]}
+            disabled={disabled}
+            direction={cardDirection}
+            onClick={() => onControlPanelItem(templateConfig)}
+          />
+        )
+    }
+  };
 
   // 设置为 true 切换为手动排列属性示例
   const showManualLayoutPropertyList = true;
@@ -298,14 +320,15 @@ export function DevicePanel() {
         <div style={{display: 'flex', width: '100%', justifyContent: 'center'}}>
           <div style={{display: 'flex', width: '20%', justifyContent: 'center'}} />
           <div style={{display: 'flex', width: '60%', justifyContent: 'center'}}>
-            <img className="photo" lazy-load="true" src='https://s3.bmp.ovh/imgs/2022/03/f424ba369eae753d.png' />
+            <img className="photo" lazy-load="true" src='https://uploadbeta.com/share-image/ihk' />            
           </div>
           <div style={{display: 'flex', width: '20%', justifyContent: 'center'}} />
         </div>
 
         <div style={{display: 'flex', justifyContent: 'left'}}>
-          <div style={{display: 'flex', width: '10%', justifyContent: 'center'}} />
-          <p className="card">在线</p>
+          <div style={{display: 'flex', width: '5%', justifyContent: 'center'}} />
+          <div className="card-left">在线</div>
+          <div className="card-right">{sofaModeName==""?"模式未设定":sofaModeName}</div>
         </div>
 
         {renderHeadPanel()}
@@ -329,17 +352,24 @@ export function DevicePanel() {
           </div>
         )}
 
-        {numberPanelInfo.visible && (
-          <NumberPanelControl
+        {state.templateList.length > 0 && (
+          <div className="card-layout">
+            <PropertyActionList
+                templateList={state.templateList}
+                renderProperty={renderPropertyActionCard}
+            />
+          </div>
+        )}
+
+        {boolPanelInfo.visible && (
+          <BoolPanelControl
             visible={true}
-            templateConfig={state.templateMap[numberPanelInfo.templateId]}
-            value={state.deviceData[numberPanelInfo.templateId]}
+            templateConfig={state.templateMap[boolPanelInfo.templateId]}
+            value={state.deviceData[boolPanelInfo.templateId]}
             onChange={(value) =>
-              onControlDeviceData(numberPanelInfo.templateId, value)
+              onControlDeviceData(boolPanelInfo.templateId, value)
             }
-            onClose={() =>
-              setNumberPanelInfo({ visible: false, templateId: "" })
-            }
+            onClose={() => setBoolPanelInfo({ visible: false, templateId: "" })}
           />
         )}
 
@@ -354,6 +384,7 @@ export function DevicePanel() {
             onClose={() => setEnumPanelInfo({ visible: false, templateId: "" })}
           />
         )}
+
       </div>
     </div>
   );

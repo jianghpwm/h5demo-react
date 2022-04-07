@@ -50,7 +50,8 @@ export function BoolBtnPanel({
       </div>
 
       <div className="bool-panel-content">
-        {name}：{mapping[value || 0]}
+        {/* {name}：{mapping[value || 0]} */}
+        {name}
       </div>
     </div>
   );

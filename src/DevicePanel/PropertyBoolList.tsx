@@ -22,7 +22,7 @@ export function PropertyBoolList({
       templateList[2 % templateList.length],
       templateList[3 % templateList.length],
       templateList[4 % templateList.length],
-      templateList[5 % templateList.length],
+      templateList[9 % templateList.length],
       templateList[6 % templateList.length],
       templateList[7 % templateList.length],
       templateList[8 % templateList.length],
@@ -78,30 +78,7 @@ export function PropertyBoolList({
         </Col>
       </Row>
 
-      <Row>  { /* 一行显示一个属性（长按钮） */ }
-        <Col>
-          {renderProperty({
-            templateConfig: templateListToShow[6],
-            cardDirection: 'row'
-          })}
-        </Col>
-      </Row>
-      <Row>  { /* 一行显示一个属性（长按钮） */ }
-        <Col>
-          {renderProperty({
-            templateConfig: templateListToShow[7],
-            cardDirection: 'row'
-          })}
-        </Col>
-      </Row>
-      <Row>  { /* 一行显示一个属性（长按钮） */ }
-        <Col>
-          {renderProperty({
-            templateConfig: templateListToShow[8],
-            cardDirection: 'row'
-          })}
-        </Col>
-      </Row>
+ 
     </>
   );
 }

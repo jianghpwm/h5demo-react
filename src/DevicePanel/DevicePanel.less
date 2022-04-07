@@ -26,10 +26,95 @@
 	background: #fff;
 	border-radius: 8px;
 	color: #15161A;
-	padding: 16px;
+	padding: 6px;
+	overflow: hidden;
+	box-sizing: border-box;
+	width: 100%;
+  }
+
+  .card-center {
+	background: #fff;
+	border-radius: 8px;
+	color: #15161A;
+	padding: 4px;
 	overflow: hidden;
 	box-sizing: border-box;
 	width: 80%;
   }
+
+  .card-left {
+	background: #fff;
+	border-radius: 0px;
+	color: #15161A;
+	padding: 4px;
+	overflow: hidden;
+	box-sizing: border-box;
+	width: 50%;
+  }
+  
+  .card-right {
+	background: #fff;
+	border-radius: 0px;
+	color: #15161A;
+	padding: 6px;
+	overflow: hidden;
+	box-sizing: border-box;
+	text-align: right;
+	width: 40%;
+  }
+  
+  .circle-card {
+    //   display: block;
+      height: 40px;
+      width: 40px;
+      border-radius: 100%;
+      background-color: #A1A7B2;
+      margin-top: 4px;
+      font-size:22px;
+	  text-align: center;
+	  vertical-align: middle;
+  }
+
+  .circle-left-btn {
+    //   display: block;
+      height: 40px;
+      width: 40px;
+      border-radius: 100%;
+      background-color: #A1A7B2;
+      margin-top: 4px;
+      font-size: 22px;
+	  text-align: center;
+	  vertical-align: middle;
+	  transform: rotate(90deg);
+  }
+  
+  .circle-right-btn {
+      display: block;
+      height: 40px;
+      width: 40px;
+      border-radius: 100%;
+      background-color: #A1A7B2;
+      margin-top: 4px;
+      font-size:22px;
+	  text-align: center;
+	  transform: rotate(-90deg);
+  }
+ 
+  
+	.container{
+		width: 0;
+		height: 0;
+		border: 50px solid;
+		border-color: red transparent transparent transparent;
+		position: relative;
+	}
+	.container::after{
+		content: '';
+		position: absolute;
+		top: -55px;
+		left: -50px;
+		border: 50px solid;
+		border-color: white transparent transparent transparent;
+	}
 
 }
